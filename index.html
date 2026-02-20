@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Una Carta Para Ti</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ========== RESET & BASE ========== */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #3b2f2f;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(139, 90, 43, 0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 30%, rgba(101, 67, 33, 0.2) 0%, transparent 60%);
+            font-family: 'Cormorant Garamond', 'Georgia', serif;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        /* ========== FLOATING PARTICLES (ambient) ========== */
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(218, 185, 130, 0.15);
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-10vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* ========== LETTER CONTAINER ========== */
+        .letter-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .letter {
+            position: relative;
+            background:
+                linear-gradient(180deg,
+                    #f5e6c8 0%,
+                    #f0dbb5 15%,
+                    #ecdaaa 30%,
+                    #f2e0b6 50%,
+                    #e8d3a0 70%,
+                    #f0dbb5 85%,
+                    #e5cc96 100%);
+            border-radius: 4px;
+            padding: 60px 120px 50px;
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.35),
+                inset 0 0 80px rgba(139, 90, 43, 0.12),
+                inset 0 0 200px rgba(101, 67, 33, 0.06);
+            border: 1px solid rgba(139, 90, 43, 0.3);
+            overflow: hidden;
+        }
+
+        /* Paper texture overlay */
+        .letter::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Aged edges */
+        .letter::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 4px;
+            box-shadow:
+                inset 6px 6px 20px rgba(101, 67, 33, 0.15),
+                inset -6px -6px 20px rgba(101, 67, 33, 0.15),
+                inset 0 0 60px rgba(139, 90, 43, 0.08);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Coffee stain */
+        .coffee-stain {
+            position: absolute;
+            top: 30px;
+            right: 45px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid rgba(139, 90, 43, 0.12);
+            background: radial-gradient(circle, rgba(139, 90, 43, 0.06) 40%, transparent 70%);
+            z-index: 0;
+        }
+
+        /* Fold lines */
+        .fold-h {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(101, 67, 33, 0.1) 20%, rgba(101, 67, 33, 0.15) 50%, rgba(101, 67, 33, 0.1) 80%, transparent);
+            z-index: 0;
+        }
+
+        .fold-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 1px;
+            background: linear-gradient(180deg, transparent, rgba(101, 67, 33, 0.08) 20%, rgba(101, 67, 33, 0.12) 50%, rgba(101, 67, 33, 0.08) 80%, transparent);
+            z-index: 0;
+        }
+
+        /* ========== SIDE ILLUSTRATIONS (inside letter) ========== */
+        .side-illu {
+            position: absolute;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0;
+            animation: fadeInIllu 1.2s ease forwards;
+        }
+
+        /* LEFT column illustrations */
+        .illu-left-1 {
+            left: 12px;
+            top: 80px;
+            animation-delay: 1.0s;
+        }
+
+        .illu-left-2 {
+            left: 8px;
+            top: 320px;
+            animation-delay: 1.6s;
+        }
+
+        .illu-left-3 {
+            left: 15px;
+            top: 560px;
+            animation-delay: 2.2s;
+        }
+
+        /* RIGHT column illustrations */
+        .illu-right-1 {
+            right: 12px;
+            top: 120px;
+            animation-delay: 1.3s;
+        }
+
+        .illu-right-2 {
+            right: 10px;
+            top: 380px;
+            animation-delay: 1.9s;
+        }
+
+        .illu-right-3 {
+            right: 15px;
+            top: 600px;
+            animation-delay: 2.5s;
+        }
+
+        @keyframes fadeInIllu {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========== TYPOGRAPHY ========== */
+        .letter-content {
+            position: relative;
+            z-index: 3;
+        }
+
+        .letter-date {
+            text-align: right;
+            font-style: italic;
+            color: rgba(101, 67, 33, 0.5);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .letter-body p {
+            font-size: 1.18rem;
+            line-height: 2;
+            color: #3b2a1a;
+            text-align: justify;
+            margin-bottom: 28px;
+            text-indent: 2em;
+            hyphens: auto;
+        }
+
+        .letter-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Highlighted statistics */
+        .highlight {
+            color: #6b3a1f;
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        .letter-closing {
+            margin-top: 40px;
+            text-align: right;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.6rem;
+            color: #5a3015;
+        }
+
+        /* ========== DECORATIVE BORDERS ========== */
+        .border-top,
+        .border-bottom {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(139, 90, 43, 0.4) 15%, rgba(101, 67, 33, 0.5) 50%, rgba(139, 90, 43, 0.4) 85%, transparent);
+            margin: 0 -10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .border-top {
+            margin-bottom: 30px;
+        }
+
+        .border-bottom {
+            margin-top: 35px;
+        }
+
+        /* ========== SVG ANIMATION KEYFRAMES ========== */
+
+        .planet-group {
+            animation: gentleFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes gentleFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .orbit-ring {
+            animation: orbitSpin 12s linear infinite;
+            transform-origin: center;
+        }
+
+        @keyframes orbitSpin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .planet-ring {
+            animation: ringPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes ringPulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 0.9;
+            }
+        }
+
+        .tiny-star {
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        .tiny-star:nth-child(2) {
+            animation-delay: 0.7s;
+        }
+
+        .tiny-star:nth-child(3) {
+            animation-delay: 1.4s;
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                r: 1;
+            }
+
+            50% {
+                opacity: 1;
+                r: 1.8;
+            }
+        }
+
+        .wave-path {
+            animation: waveMove 3s ease-in-out infinite;
+        }
+
+        .wave-path:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .wave-path:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        @keyframes waveMove {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(3px);
+            }
+        }
+
+        .fish-group {
+            animation: fishSwim 5s ease-in-out infinite;
+        }
+
+        @keyframes fishSwim {
+
+            0%,
+            100% {
+                transform: translateX(0) translateY(0);
+            }
+
+            25% {
+                transform: translateX(5px) translateY(-2px);
+            }
+
+            75% {
+                transform: translateX(-3px) translateY(2px);
+            }
+        }
+
+        .bubble {
+            animation: bubbleRise 3s ease-in infinite;
+        }
+
+        .bubble:nth-child(2) {
+            animation-delay: 1s;
+        }
+
+        .bubble:nth-child(3) {
+            animation-delay: 2s;
+        }
+
+        @keyframes bubbleRise {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(-15px) scale(0.4);
+                opacity: 0;
+            }
+        }
+
+        .globe-group {
+            animation: gentleFloat 7s ease-in-out infinite;
+            animation-delay: 1s;
+        }
+
+        .meridian {
+            animation: meridianPulse 5s ease-in-out infinite;
+        }
+
+        .meridian:nth-child(2) {
+            animation-delay: 1.5s;
+        }
+
+        @keyframes meridianPulse {
+
+            0%,
+            100% {
+                stroke-opacity: 0.3;
+            }
+
+            50% {
+                stroke-opacity: 0.7;
+            }
+        }
+
+        .location-pin {
+            animation: pinBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes pinBounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .compass-needle {
+            animation: compassWobble 4s ease-in-out infinite;
+            transform-origin: 30px 30px;
+        }
+
+        @keyframes compassWobble {
+
+            0%,
+            100% {
+                transform: rotate(-10deg);
+            }
+
+            50% {
+                transform: rotate(10deg);
+            }
+        }
+
+        .heart-group {
+            animation: heartBeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartBeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            15% {
+                transform: scale(1.15);
+            }
+
+            30% {
+                transform: scale(1);
+            }
+
+            45% {
+                transform: scale(1.1);
+            }
+
+            60% {
+                transform: scale(1);
+            }
+        }
+
+        .heart-glow {
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                opacity: 0.15;
+                r: 15;
+            }
+
+            50% {
+                opacity: 0.35;
+                r: 20;
+            }
+        }
+
+        .sailboat-group {
+            animation: boatRock 4s ease-in-out infinite;
+        }
+
+        @keyframes boatRock {
+
+            0%,
+            100% {
+                transform: rotate(0deg) translateY(0);
+            }
+
+            25% {
+                transform: rotate(3deg) translateY(-2px);
+            }
+
+            75% {
+                transform: rotate(-3deg) translateY(2px);
+            }
+        }
+
+        /* ========== SEPARATOR ========== */
+        .separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sep-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 90, 43, 0.35), transparent);
+        }
+
+        .sep-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(139, 90, 43, 0.4);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 700px) {
+            .letter {
+                padding: 40px 30px 35px;
+            }
+
+            .side-illu {
+                display: none;
+            }
+
+            .letter-body p {
+                font-size: 1.05rem;
+                line-height: 1.85;
+            }
+
+            .letter-closing {
+                font-size: 1.35rem;
+            }
+        }
+
+        /* ========== ENTRANCE ANIMATION ========== */
+        .letter-wrapper {
+            animation: letterAppear 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes letterAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(40px) scale(0.97);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .letter-body p {
+            opacity: 0;
+            animation: fadeInParagraph 1s ease forwards;
+        }
+
+        .letter-body p:nth-child(1) {
+            animation-delay: 0.8s;
+        }
+
+        .letter-body p:nth-child(2) {
+            animation-delay: 1.4s;
+        }
+
+        .letter-body p:nth-child(3) {
+            animation-delay: 2.0s;
+        }
+
+        @keyframes fadeInParagraph {
+            0% {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Ambient floating particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="letter-wrapper">
+        <div class="letter">
+            <!-- Texture details -->
+            <div class="coffee-stain"></div>
+            <div class="fold-h"></div>
+            <div class="fold-v"></div>
+
+            <!-- ========== LEFT SIDE ILLUSTRATIONS (inside letter) ========== -->
+
+            <!-- Moon & Stars — top left -->
+            <div class="side-illu illu-left-1">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                    <circle class="tiny-star" cx="15" cy="18" r="1.5" fill="#8b5a2b" opacity="0.5" />
+                    <circle class="tiny-star" cx="60" cy="10" r="1.2" fill="#8b5a2b" opacity="0.4" />
+                    <circle class="tiny-star" cx="38" cy="8" r="1" fill="#8b5a2b" opacity="0.6" />
+                    <circle class="tiny-star" cx="55" cy="50" r="1.3" fill="#8b5a2b" opacity="0.5" />
+                    <circle class="tiny-star" cx="10" cy="60" r="1.1" fill="#8b5a2b" opacity="0.35" />
+                    <circle class="tiny-star" cx="68" cy="65" r="1.4" fill="#8b5a2b" opacity="0.4" />
+                    <path d="M35 22 A16 16 0 1 1 35 58 A11 11 0 1 0 35 22Z" fill="none" stroke="#8b5a2b"
+                        stroke-width="1.1" opacity="0.4" />
+                </svg>
+            </div>
+
+            <!-- Waves & Fish — mid left -->
+            <div class="side-illu illu-left-2">
+                <svg width="85" height="65" viewBox="0 0 85 65" fill="none">
+                    <g class="wave-path">
+                        <path d="M3 25 Q13 18 23 25 Q33 32 43 25 Q53 18 63 25 Q73 32 83 25" stroke="#8b5a2b"
+                            stroke-width="1.1" fill="none" opacity="0.4" />
+                    </g>
+                    <g class="wave-path">
+                        <path d="M3 35 Q13 28 23 35 Q33 42 43 35 Q53 28 63 35 Q73 42 83 35" stroke="#6b3a1f"
+                            stroke-width="0.9" fill="none" opacity="0.3" />
+                    </g>
+                    <g class="wave-path">
+                        <path d="M3 45 Q13 38 23 45 Q33 52 43 45 Q53 38 63 45 Q73 52 83 45" stroke="#8b5a2b"
+                            stroke-width="0.7" fill="none" opacity="0.25" />
+                    </g>
+                    <g class="fish-group">
+                        <path d="M18 30 L25 27 L25 33 Z" fill="#8b5a2b" opacity="0.3" />
+                        <circle cx="23" cy="29" r="0.6" fill="#5a3015" opacity="0.4" />
+                    </g>
+                    <circle class="bubble" cx="35" cy="38" r="1.1" fill="none" stroke="#8b5a2b" stroke-width="0.5"
+                        opacity="0.35" />
+                    <circle class="bubble" cx="55" cy="30" r="0.9" fill="none" stroke="#8b5a2b" stroke-width="0.5"
+                        opacity="0.3" />
+                </svg>
+            </div>
+
+            <!-- Sailboat — bottom left -->
+            <div class="side-illu illu-left-3">
+                <svg width="75" height="70" viewBox="0 0 75 70" fill="none">
+                    <g class="sailboat-group" style="transform-origin: 38px 42px;">
+                        <path d="M18 48 Q23 58 38 58 Q53 58 58 48 Z" fill="none" stroke="#8b5a2b" stroke-width="1.1"
+                            opacity="0.35" />
+                        <line x1="38" y1="48" x2="38" y2="18" stroke="#8b5a2b" stroke-width="0.9" opacity="0.4" />
+                        <path d="M38 20 L38 46 L52 43 Z" fill="#8b5a2b" opacity="0.06" stroke="#8b5a2b"
+                            stroke-width="0.7" style="stroke-opacity:0.3" />
+                        <path d="M38 23 L38 44 L26 42 Z" fill="#6b3a1f" opacity="0.04" stroke="#6b3a1f"
+                            stroke-width="0.6" style="stroke-opacity:0.25" />
+                    </g>
+                    <g class="wave-path" style="animation-delay: 0.3s">
+                        <path d="M5 56 Q15 52 25 56 Q35 60 45 56 Q55 52 65 56 Q70 58 75 56" stroke="#8b5a2b"
+                            stroke-width="0.7" fill="none" opacity="0.25" />
+                    </g>
+                </svg>
+            </div>
+
+            <!-- ========== RIGHT SIDE ILLUSTRATIONS (inside letter) ========== -->
+
+            <!-- Planet — top right -->
+            <div class="side-illu illu-right-1">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                    <g class="planet-group">
+                        <circle cx="40" cy="40" r="14" fill="none" stroke="#8b5a2b" stroke-width="1.2" opacity="0.45" />
+                        <path d="M30 37 Q35 33 40 37 Q45 41 50 37" stroke="#6b3a1f" stroke-width="0.7" fill="none"
+                            opacity="0.3" />
+                        <path d="M28 44 Q35 48 40 44 Q45 40 52 44" stroke="#6b3a1f" stroke-width="0.7" fill="none"
+                            opacity="0.2" />
+                        <ellipse class="planet-ring" cx="40" cy="40" rx="26" ry="8" fill="none" stroke="#8b5a2b"
+                            stroke-width="0.8" opacity="0.35" transform="rotate(-20 40 40)" />
+                    </g>
+                    <g class="orbit-ring" style="transform-origin: 40px 40px;">
+                        <circle cx="40" cy="10" r="2" fill="#8b5a2b" opacity="0.4" />
+                    </g>
+                    <circle class="tiny-star" cx="8" cy="12" r="1" fill="#8b5a2b" opacity="0.35" />
+                    <circle class="tiny-star" cx="72" cy="18" r="1.1" fill="#8b5a2b" opacity="0.3" />
+                    <circle class="tiny-star" cx="70" cy="68" r="1" fill="#8b5a2b" opacity="0.25" />
+                </svg>
+            </div>
+
+            <!-- Globe — mid right -->
+            <div class="side-illu illu-right-2">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                    <g class="globe-group">
+                        <circle cx="40" cy="40" r="22" fill="none" stroke="#8b5a2b" stroke-width="1.2" opacity="0.4" />
+                        <ellipse cx="40" cy="40" rx="10" ry="22" fill="none" stroke="#6b3a1f" stroke-width="0.7"
+                            opacity="0.25" />
+                        <line class="meridian" x1="18" y1="40" x2="62" y2="40" stroke="#6b3a1f" stroke-width="0.6"
+                            opacity="0.25" />
+                        <line class="meridian" x1="21" y1="27" x2="59" y2="27" stroke="#6b3a1f" stroke-width="0.5"
+                            opacity="0.2" />
+                        <line class="meridian" x1="21" y1="53" x2="59" y2="53" stroke="#6b3a1f" stroke-width="0.5"
+                            opacity="0.2" />
+                        <path d="M32 30 Q37 25 42 29 Q45 33 43 37 L37 35 Z" fill="#8b5a2b" opacity="0.08" />
+                        <path d="M44 41 Q49 38 52 43 Q50 49 46 46 Z" fill="#8b5a2b" opacity="0.06" />
+                        <path d="M28 44 Q31 42 33 46 Q31 49 28 47 Z" fill="#8b5a2b" opacity="0.06" />
+                        <g class="location-pin">
+                            <path d="M50 24 L50 17" stroke="#8b5a2b" stroke-width="0.9" opacity="0.5" />
+                            <circle cx="50" cy="16" r="2.5" fill="none" stroke="#8b5a2b" stroke-width="0.8"
+                                opacity="0.5" />
+                            <circle cx="50" cy="16" r="0.8" fill="#8b5a2b" opacity="0.4" />
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Compass — bottom right -->
+            <div class="side-illu illu-right-3">
+                <svg width="70" height="70" viewBox="0 0 70 70" fill="none">
+                    <circle cx="35" cy="35" r="22" fill="none" stroke="#8b5a2b" stroke-width="1.1" opacity="0.3" />
+                    <circle cx="35" cy="35" r="17" fill="none" stroke="#6b3a1f" stroke-width="0.5" opacity="0.2" />
+                    <text x="35" y="17" text-anchor="middle" font-size="7" fill="#8b5a2b" opacity="0.45"
+                        font-family="'Cormorant Garamond', serif">N</text>
+                    <text x="35" y="59" text-anchor="middle" font-size="6" fill="#6b3a1f" opacity="0.3"
+                        font-family="'Cormorant Garamond', serif">S</text>
+                    <text x="14" y="38" text-anchor="middle" font-size="6" fill="#6b3a1f" opacity="0.3"
+                        font-family="'Cormorant Garamond', serif">O</text>
+                    <text x="56" y="38" text-anchor="middle" font-size="6" fill="#6b3a1f" opacity="0.3"
+                        font-family="'Cormorant Garamond', serif">E</text>
+                    <g class="compass-needle" style="transform-origin: 35px 35px;">
+                        <polygon points="35,18 33,35 37,35" fill="#8b5a2b" opacity="0.45" />
+                        <polygon points="35,52 33,35 37,35" fill="#6b3a1f" opacity="0.2" />
+                    </g>
+                    <circle cx="35" cy="35" r="2" fill="#8b5a2b" opacity="0.4" />
+                </svg>
+            </div>
+
+            <!-- ========== HEART — bottom center inside letter ========== -->
+            <div class="side-illu" style="bottom: 15px; left: 50%; transform: translateX(-50%); animation-delay: 2.8s;">
+                <svg width="50" height="45" viewBox="0 0 50 45" fill="none">
+                    <g class="heart-group" style="transform-origin: 25px 24px;">
+                        <circle class="heart-glow" cx="25" cy="24" r="16" fill="#8b5a2b" opacity="0.08" />
+                        <path d="M25 32 C25 32 10 18 10 12 C10 6 17 3 25 12 C33 3 40 6 40 12 C40 18 25 32 25 32Z"
+                            fill="none" stroke="#8b5a2b" stroke-width="1.1" opacity="0.4" />
+                        <path d="M25 28 C25 28 15 20 15 15 C15 11 19 9 25 15 C31 9 35 11 35 15 C35 20 25 28 25 28Z"
+                            fill="#8b5a2b" opacity="0.05" />
+                    </g>
+                </svg>
+            </div>
+
+            <!-- ========== LETTER CONTENT ========== -->
+            <div class="letter-content">
+                <p class="letter-date">Febrero, 2025</p>
+
+                <div class="border-top"></div>
+
+                <div class="letter-body">
+                    <p>
+                        Hace tiempo, mi día a día era como caminar a ciegas por un suelo frío, simplemente sobreviviendo
+                        y esperando que las horas pasaran sin mucho rumbo. Pero de pronto, en una de esas noches que
+                        parecían no tener brillo, llegaste tú a iluminar mi realidad. Todavía le doy vueltas a ese
+                        primer día y me cuesta creer que realmente pasó; recuerdo perfectamente mis nervios y esa
+                        felicidad increíble de verte ahí, una imagen que aún hoy me sigue llenando el alma.
+                    </p>
+
+                    <div class="separator">
+                        <div class="sep-line"></div>
+                        <div class="sep-dot"></div>
+                        <div class="sep-line"></div>
+                    </div>
+
+                    <p>
+                        Caminar de tu mano me enseñó que podía vivir una vida que no creía merecer. Me devolviste la paz
+                        y, al mirarte, volví a encontrar en tus ojos esas estrellas que pensé que se habían apagado para
+                        siempre en mi cielo. Viniste a calmar una tormenta que nunca provocaste, dándome un refugio en
+                        tu abrazo y demostrándome que todavía podía ser amado. Es curioso, porque dicen que existen
+                        <span class="highlight">8 planetas</span>, <span class="highlight">5 océanos</span>, <span
+                            class="highlight">7 mares</span>, <span class="highlight">195 países</span> y más de <span
+                            class="highlight">8,000 millones de personas</span>; y aun así, contra toda estadística,
+                        nuestras órbitas se cruzaron. Entre tanto ruido y tanta gente, el destino o la simple suerte
+                        decidió que coincidiéramos, y hoy sé que de todos esos lugares y personas, no hay ningún otro
+                        sitio en el que prefiera estar que no sea a tu lado.
+                    </p>
+
+                    <div class="separator">
+                        <div class="sep-line"></div>
+                        <div class="sep-dot"></div>
+                        <div class="sep-line"></div>
+                    </div>
+
+                    <p>
+                        Sigues aquí, después de tanto, transformando cada instante en luz y siendo ese norte que me
+                        ayuda a ubicarme. Encontré entre tus manos el lugar seguro que creí que jamás hallaría, y por
+                        eso, eres y serás lo que siempre agradeceré tener en mi vida y jamás quisiera perder.
+                    </p>
+                </div>
+
+                <div class="border-bottom"></div>
+
+                <div class="letter-closing">
+                    Con todo mi amor, siempre. ♥
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate floating particles
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            const size = Math.random() * 4 + 2;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDuration = (Math.random() * 12 + 10) + 's';
+            p.style.animationDelay = (Math.random() * 15) + 's';
+            container.appendChild(p);
+        }
+    </script>
+</body>
+
+</html>
